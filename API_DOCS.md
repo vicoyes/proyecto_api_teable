@@ -116,6 +116,12 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 `GET /projects`
 - **Descripción:** Lista los proyectos vinculables registrados en Teable. *Nota: Este endpoint tiene una caché de memoria (TTL: 5 min).*
 
+`POST /projects`
+- **Descripción:** Crea un nuevo proyecto en Teable.
+- **Payload Requerido:**
+  - `nombre_proyecto`: string (min 3 chars)
+- **Campos Opcionales:** `descripcion`, `estado_proyecto` (por defecto ACTIVO), `prioridad` (por defecto MEDIA), `fecha_inicio`, `fecha_fin`, `presupuesto_estimado`, `tipo_proyecto`, `notas_internas`.
+
 ---
 
 ## Logging
