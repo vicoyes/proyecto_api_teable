@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    container_name: task_api_dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT:-8002}:8000"
+    volumes:
+      - ./app:/app/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

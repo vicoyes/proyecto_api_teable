@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    container_name: task_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT:-8002}:8000"
