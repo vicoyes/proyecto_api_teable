@@ -3,7 +3,15 @@ services:
     build: .
     container_name: task_api
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
-      - "${APP_PORT:-8002}:8000"
+      - "127.0.0.1:${APP_PORT}:8000"
+    environment:
+      APP_NAME: ${APP_NAME}
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_PORT: "8000"
+      TEABLE_BASE_URL: ${TEABLE_BASE_URL}
+      TEABLE_API_TOKEN: ${TEABLE_API_TOKEN}
+      TEABLE_TABLE_TASKS: ${TEABLE_TABLE_TASKS}
+      TEABLE_TABLE_TEAM: ${TEABLE_TABLE_TEAM}
+      TEABLE_TABLE_PROJECTS: ${TEABLE_TABLE_PROJECTS}
