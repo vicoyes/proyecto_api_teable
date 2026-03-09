@@ -4,7 +4,7 @@ services:
     container_name: task_api
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${APP_PORT}:8000"
+      - "0.0.0.0:${APP_PORT}:8000"
     environment:
       APP_NAME: ${APP_NAME}
       APP_ENV: ${APP_ENV}
