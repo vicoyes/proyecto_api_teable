@@ -36,26 +36,9 @@ class ProjectService:
                 fields[key] = value.isoformat()
         
         try:
-            # Proper Inverse Mapping for Teable fields
-            inverse_map = {
-                "nombre_proyecto": "Nombre_Proyecto",
-                "descripcion": "Descripcion",
-                "estado_proyecto": "Estado_Proyecto",
-                "prioridad": "Prioridad",
-                "fecha_inicio": "Fecha_Inicio",
-                "fecha_fin": "Fecha_Fin",
-                "presupuesto_estimado": "Presupuesto_Estimado",
-                "tipo_proyecto": "Tipo_Proyecto",
-                "notas_internas": "Notas_Internas"
-            }
-            
-            teable_fields = {}
-            for k, v in fields.items():
-                if k in inverse_map and v is not None:
-                    teable_fields[inverse_map[k]] = v
-            
-            if "nombre_proyecto" not in fields:
-               teable_fields["Nombre_Proyecto"] = project_data.nombre_proyecto
+            # Send fields exactly matching the Pydantic schema snake_case as they correspond 
+            # exactly to the Teable column names we defined in mapping.py 
+            teable_fields = {k: v for k, v in fields.items() if v is not None}
                 
             response = await self.client.create_record(self.table_id, {"fields": teable_fields})
             # invalidate cache

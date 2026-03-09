@@ -120,7 +120,7 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 - **Descripción:** Crea un nuevo proyecto en Teable.
 - **Payload Requerido:**
   - `nombre_proyecto`: string (min 3 chars)
-- **Campos Opcionales:** `descripcion`, `estado_proyecto` (por defecto ACTIVO), `prioridad` (por defecto MEDIA), `fecha_inicio`, `fecha_fin`, `presupuesto_estimado`, `tipo_proyecto`, `notas_internas`.
+- **Campos Opcionales:** `cliente`, `tipo_proyecto`, `estado_proyecto` (por defecto ACTIVO), `prioridad_proyecto` (por defecto MEDIA), `responsable_general`, `descripcion`, `fecha_inicio`, `fecha_fin`.
 
 ---
 
