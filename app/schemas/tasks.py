@@ -39,6 +39,11 @@ class TaskCreate(BaseModel):
     evidencias: str | None = None
     responsable: str | None = None
     proyecto: str | None = None
+    
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    nexus_1744: str | None = Field(None, alias="@nexus#1744")
 
 
 class TaskUpdate(BaseModel):
@@ -77,8 +82,9 @@ class TaskResponse(BaseModel):
     evidencias: str | None = None
     responsable: list[str] | None = None
     proyecto: list[str] | None = None
+    nexus_1744: str | None = Field(None, alias="@nexus#1744")
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class TaskListResponse(BaseModel):

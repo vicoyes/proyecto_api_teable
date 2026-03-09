@@ -23,6 +23,7 @@ def map_task_record(record: dict) -> TaskResponse:
         evidencias=fields.get("evidencias"),
         responsable=fields.get("responsable"),
         proyecto=fields.get("proyecto"),
+        nexus_1744=fields.get("@nexus#1744"),
     )
 
 
