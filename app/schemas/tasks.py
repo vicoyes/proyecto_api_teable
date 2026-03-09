@@ -59,6 +59,11 @@ class TaskUpdate(BaseModel):
     proyecto: str | None = None
 
 
+class LinkedRecordRef(BaseModel):
+    id: str
+    title: str | None = None
+
+
 class TaskResponse(BaseModel):
     id: str
     nombre_tarea: str | None = None
@@ -75,8 +80,8 @@ class TaskResponse(BaseModel):
     correcciones: str | None = None
     resultado: str | None = None
     evidencias: str | None = None
-    responsable: list[str] | None = None
-    proyecto: list[str] | None = None
+    responsable: LinkedRecordRef | None = None
+    proyecto: LinkedRecordRef | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

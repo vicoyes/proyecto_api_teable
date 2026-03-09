@@ -1,6 +1,16 @@
 from app.schemas.projects import ProjectResponse
-from app.schemas.tasks import TaskResponse
+from app.schemas.tasks import LinkedRecordRef, TaskResponse
 from app.schemas.team import TeamMemberResponse
+
+
+def map_linked_record(value):
+    if isinstance(value, dict) and value.get("id"):
+        return LinkedRecordRef(
+            id=value["id"],
+            title=value.get("title"),
+        )
+
+    return None
 
 
 def map_task_record(record: dict) -> TaskResponse:
@@ -21,8 +31,8 @@ def map_task_record(record: dict) -> TaskResponse:
         correcciones=fields.get("correcciones"),
         resultado=fields.get("resultado"),
         evidencias=fields.get("evidencias"),
-        responsable=fields.get("responsable"),
-        proyecto=fields.get("proyecto"),
+        responsable=map_linked_record(fields.get("responsable")),
+        proyecto=map_linked_record(fields.get("proyecto")),
     )
 
 

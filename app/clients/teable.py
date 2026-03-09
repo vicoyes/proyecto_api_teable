@@ -1,4 +1,5 @@
 import json
+from datetime import date, datetime
 from typing import Any
 
 import httpx
@@ -13,6 +14,15 @@ class TeableClient:
             "Authorization": f"Bearer {settings.teable_api_token}",
             "Content-Type": "application/json",
         }
+
+    def _normalize_json_value(self, value: Any) -> Any:
+        if isinstance(value, (datetime, date)):
+            return value.isoformat()
+        if isinstance(value, dict):
+            return {key: self._normalize_json_value(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [self._normalize_json_value(item) for item in value]
+        return value
 
     async def list_records(
         self,
@@ -52,7 +62,7 @@ class TeableClient:
         url = f"{self.base_url}/api/table/{table_id}/record"
         payload = {
             "fieldKeyType": "name",
-            "records": [{"fields": fields}],
+            "records": [{"fields": self._normalize_json_value(fields)}],
         }
 
         async with httpx.AsyncClient(timeout=30) as client:
@@ -64,7 +74,7 @@ class TeableClient:
         url = f"{self.base_url}/api/table/{table_id}/record/{record_id}"
         payload = {
             "fieldKeyType": "name",
-            "record": {"fields": fields},
+            "record": {"fields": self._normalize_json_value(fields)},
         }
 
         async with httpx.AsyncClient(timeout=30) as client:
