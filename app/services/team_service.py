@@ -27,8 +27,25 @@ class TeamService:
         return result
 
     async def get_member_by_name(self, name: str):
-        return await self.client.get_record_by_name(
-            self.table_id,
-            TEAM_NAME_FIELD_ID,
-            name,
-        )
+        """Busca un miembro por nombre exacto.
+        
+        Nota: El filtro de Teable no funciona correctamente para esta tabla,
+        por lo que se obtienen todos los miembros y se filtra localmente.
+        """
+        cache_key = "all_members_for_search"
+        cached = team_cache.get(cache_key)
+        
+        if cached:
+            records = cached
+        else:
+            data = await self.client.list_records(self.table_id, take=100)
+            records = data.get("records", [])
+            team_cache.set(cache_key, records)
+        
+        # Filtrar localmente por nombre exacto
+        for record in records:
+            fields = record.get("fields", {})
+            if fields.get("nombre") == name:
+                return record
+        
+        return None

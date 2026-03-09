@@ -66,11 +66,28 @@ class ProjectService:
             raise HTTPException(status_code=exc.response.status_code, detail=detail) from exc
 
     async def get_project_by_name(self, name: str):
-        return await self.client.get_record_by_name(
-            self.table_id,
-            PROJECT_NAME_FIELD_ID,
-            name,
-        )
+        """Busca un proyecto por nombre exacto.
+        
+        Nota: El filtro de Teable no funciona correctamente,
+        por lo que se obtienen todos los proyectos y se filtra localmente.
+        """
+        cache_key = "all_projects_for_search"
+        cached = project_cache.get(cache_key)
+        
+        if cached:
+            records = cached
+        else:
+            data = await self.client.list_records(self.table_id, take=100)
+            records = data.get("records", [])
+            project_cache.set(cache_key, records)
+        
+        # Filtrar localmente por nombre exacto
+        for record in records:
+            fields = record.get("fields", {})
+            if fields.get("nombre_proyecto") == name:
+                return record
+        
+        return None
 
     async def update_project(self, project_id: str, project_data: ProjectUpdate):
         fields = project_data.model_dump(exclude_unset=True)

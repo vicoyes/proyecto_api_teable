@@ -1,8 +1,8 @@
 import json
-from datetime import date, datetime
 from typing import Any
 
 import httpx
+from fastapi.encoders import jsonable_encoder
 
 from app.config import settings
 
@@ -14,15 +14,6 @@ class TeableClient:
             "Authorization": f"Bearer {settings.teable_api_token}",
             "Content-Type": "application/json",
         }
-
-    def _normalize_json_value(self, value: Any) -> Any:
-        if isinstance(value, (datetime, date)):
-            return value.isoformat()
-        if isinstance(value, dict):
-            return {key: self._normalize_json_value(item) for key, item in value.items()}
-        if isinstance(value, list):
-            return [self._normalize_json_value(item) for item in value]
-        return value
 
     async def list_records(
         self,
@@ -62,11 +53,11 @@ class TeableClient:
         url = f"{self.base_url}/api/table/{table_id}/record"
         payload = {
             "fieldKeyType": "name",
-            "records": [{"fields": self._normalize_json_value(fields)}],
+            "records": [{"fields": fields}],
         }
 
         async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(url, headers=self.headers, json=payload)
+            response = await client.post(url, headers=self.headers, json=jsonable_encoder(payload))
             response.raise_for_status()
             return response.json()
 
@@ -74,11 +65,11 @@ class TeableClient:
         url = f"{self.base_url}/api/table/{table_id}/record/{record_id}"
         payload = {
             "fieldKeyType": "name",
-            "record": {"fields": self._normalize_json_value(fields)},
+            "record": {"fields": fields},
         }
 
         async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.patch(url, headers=self.headers, json=payload)
+            response = await client.patch(url, headers=self.headers, json=jsonable_encoder(payload))
             response.raise_for_status()
             return response.json()
 
