@@ -55,7 +55,8 @@ class TaskService:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
             fields["proyecto"] = [project["id"]]
 
-        data = await self.client.create_record(self.table_id, fields)
+        teable_fields = {k: v for k, v in fields.items() if v is not None}
+        data = await self.client.create_record(self.table_id, teable_fields)
         record = data.get("records", [])[0]
         return map_task_record(record)
 
@@ -80,11 +81,9 @@ class TaskService:
         if payload.estado_tarea in {"COMPLETADA", "CANCELADA"} and "fecha_cierre" not in fields:
             fields["fecha_cierre"] = datetime.now(timezone.utc).isoformat()
 
-        data = await self.client.update_record(self.table_id, task_id, fields)
-        record = data.get("record")
-        if not record:
-            raise HTTPException(status_code=500, detail="Teable no devolvió el registro actualizado")
-        return map_task_record(record)
+        teable_fields = {k: v for k, v in fields.items() if v is not None}
+        data = await self.client.update_record(self.table_id, task_id, teable_fields)
+        return map_task_record(data)
 
     async def get_task(self, task_id: str):
         try:

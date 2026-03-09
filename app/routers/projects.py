@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, status
 
-from app.schemas.projects import ProjectListResponse, ProjectResponse, ProjectCreate
+from app.schemas.projects import ProjectListResponse, ProjectResponse, ProjectCreate, ProjectUpdate
 from app.services.project_service import ProjectService
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -17,3 +17,8 @@ async def list_projects(
 async def create_project(payload: ProjectCreate):
     service = ProjectService()
     return await service.create_project(payload)
+
+@router.patch("/{project_id}", response_model=ProjectResponse)
+async def update_project(project_id: str, payload: ProjectUpdate):
+    service = ProjectService()
+    return await service.update_project(project_id, payload)

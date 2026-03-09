@@ -42,6 +42,18 @@ class ProjectCreate(BaseModel):
     fecha_fin: datetime | None = None
 
 
+class ProjectUpdate(BaseModel):
+    nombre_proyecto: str | None = Field(None, min_length=3)
+    cliente: str | None = None
+    tipo_proyecto: str | None = None
+    estado_proyecto: str | None = None
+    prioridad_proyecto: str | None = None
+    responsable_general: str | None = None
+    descripcion: str | None = None
+    fecha_inicio: datetime | None = None
+    fecha_fin: datetime | None = None
+
+
 class ProjectListResponse(BaseModel):
     total: int
     items: list[ProjectResponse]

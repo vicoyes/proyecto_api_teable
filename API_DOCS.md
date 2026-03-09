@@ -122,6 +122,9 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
   - `nombre_proyecto`: string (min 3 chars)
 - **Campos Opcionales:** `cliente`, `tipo_proyecto`, `estado_proyecto` (por defecto ACTIVO), `prioridad_proyecto` (por defecto MEDIA), `responsable_general`, `descripcion`, `fecha_inicio`, `fecha_fin`.
 
+`PATCH /projects/{project_id}`
+- **Descripción:** Permite modificar parcialmente los datos de un proyecto. Los campos son los mismos que en la creación, pero todos son opcionales.
+
 ---
 
 ## Logging

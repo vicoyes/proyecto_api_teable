@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from app.clients.teable import TeableClient
 from app.config import settings
 from app.utils.mapping import map_project_record
-from app.schemas.projects import ProjectCreate
+from app.schemas.projects import ProjectCreate, ProjectUpdate
 from datetime import datetime
 
 
@@ -53,3 +53,19 @@ class ProjectService:
             PROJECT_NAME_FIELD_ID,
             name,
         )
+
+    async def update_project(self, project_id: str, project_data: ProjectUpdate):
+        fields = project_data.model_dump(exclude_unset=True)
+        # Convert datetime to string if needed
+        for key, value in fields.items():
+            if isinstance(value, datetime):
+                fields[key] = value.isoformat()
+        
+        try:
+            teable_fields = {k: v for k, v in fields.items() if v is not None}
+            response = await self.client.update_record(self.table_id, project_id, teable_fields)
+            # invalidate cache
+            project_cache._cache.clear()
+            return map_project_record(response)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error actualizando proyecto: {str(e)}")
