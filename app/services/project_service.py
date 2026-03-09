@@ -40,10 +40,10 @@ class ProjectService:
             # exactly to the Teable column names we defined in mapping.py 
             teable_fields = {k: v for k, v in fields.items() if v is not None}
                 
-            response = await self.client.create_record(self.table_id, {"fields": teable_fields})
+            response = await self.client.create_record(self.table_id, teable_fields)
             # invalidate cache
             project_cache._cache.clear()
-            return map_project_record(response)
+            return map_project_record(response.get("records", [])[0])
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Error creando proyecto: {str(e)}")
 
