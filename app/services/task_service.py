@@ -11,10 +11,6 @@ from app.services.team_service import TeamService
 from app.utils.mapping import map_task_record
 
 
-TASK_STATUS_FIELD_ID = "fldPjj7OY4dBTAjTab4"
-TASK_RESPONSABLE_FIELD_ID = "fldo2yTWNciX7xYsh3u"
-
-
 class TaskService:
     def __init__(self) -> None:
         self.client = TeableClient()
@@ -43,22 +39,32 @@ class TaskService:
         return {"id": record["id"]}
 
     async def list_tasks(self, skip: int = 0, take: int = 50, estado: str | None = None):
-        filter_obj = None
-        if estado:
-            filter_obj = {
-                "conjunction": "and",
-                "filterSet": [
-                    {"fieldId": TASK_STATUS_FIELD_ID, "operator": "is", "value": estado},
-                ],
-            }
-
+        """Lista tareas con filtro opcional por estado.
+        
+        Nota: El filtro de Teable no funciona correctamente,
+        por lo que se filtra localmente cuando se especifica estado.
+        """
+        # Obtener más registros si hay filtro, porque filtraremos localmente
+        fetch_take = take * 5 if estado else take
+        
         data = await self.client.list_records(
             self.table_id,
-            skip=skip,
-            take=take,
-            filter_obj=filter_obj,
+            skip=0 if estado else skip,
+            take=fetch_take,
         )
-        items = [map_task_record(record) for record in data.get("records", [])]
+        
+        records = data.get("records", [])
+        
+        # Filtrar localmente si hay estado
+        if estado:
+            records = [
+                r for r in records 
+                if r.get("fields", {}).get("estado_tarea") == estado
+            ]
+            # Aplicar paginación manualmente
+            records = records[skip:skip + take]
+        
+        items = [map_task_record(record) for record in records]
         return {"total": len(items), "items": items}
 
     async def create_task(self, payload: TaskCreate):
@@ -136,38 +142,32 @@ class TaskService:
         return await self.client.delete_record(self.table_id, task_id)
 
     async def get_tasks_by_member(self, member_name: str, estado: str | None = None):
+        """Obtiene tareas asignadas a un miembro.
+        
+        Nota: El filtro de Teable no funciona correctamente,
+        por lo que se obtienen todas las tareas y se filtra localmente.
+        """
         member = await self.team_service.get_member_by_name(member_name)
         if not member:
             raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
-        filter_set = [
-            {
-                "fieldId": TASK_RESPONSABLE_FIELD_ID,
-                "operator": "contains",
-                "value": member["id"],
-            }
-        ]
+        member_id = member["id"]
 
-        if estado:
-            filter_set.append(
-                {
-                    "fieldId": TASK_STATUS_FIELD_ID,
-                    "operator": "is",
-                    "value": estado,
-                }
-            )
+        # Obtener todas las tareas y filtrar localmente
+        data = await self.client.list_records(self.table_id, take=500)
+        
+        filtered_records = []
+        for record in data.get("records", []):
+            fields = record.get("fields", {})
+            responsable = fields.get("responsable")
+            
+            # responsable es un objeto {"id": "recXXX", "title": "Nombre"}
+            if isinstance(responsable, dict) and responsable.get("id") == member_id:
+                # Filtrar por estado si se especifica
+                if estado is None or fields.get("estado_tarea") == estado:
+                    filtered_records.append(record)
 
-        filter_obj = {
-            "conjunction": "and",
-            "filterSet": filter_set,
-        }
-
-        data = await self.client.list_records(
-            self.table_id,
-            take=100,
-            filter_obj=filter_obj,
-        )
-        items = [map_task_record(record) for record in data.get("records", [])]
+        items = [map_task_record(record) for record in filtered_records]
         return {
             "responsable": member_name,
             "estado": estado,
@@ -176,31 +176,29 @@ class TaskService:
         }
 
     async def get_member_task_summary(self, member_name: str):
+        """Obtiene resumen de tareas por estado para un miembro.
+        
+        Nota: El filtro de Teable no funciona correctamente,
+        por lo que se obtienen todas las tareas y se filtra localmente.
+        """
         member = await self.team_service.get_member_by_name(member_name)
         if not member:
             raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
-        filter_obj = {
-            "conjunction": "and",
-            "filterSet": [
-                {
-                    "fieldId": TASK_RESPONSABLE_FIELD_ID,
-                    "operator": "contains",
-                    "value": member["id"],
-                }
-            ],
-        }
+        member_id = member["id"]
 
-        data = await self.client.list_records(
-            self.table_id,
-            take=200,
-            filter_obj=filter_obj,
-        )
+        # Obtener todas las tareas y filtrar localmente
+        data = await self.client.list_records(self.table_id, take=500)
 
         counts: dict[str, int] = {}
         for record in data.get("records", []):
-            estado = record.get("fields", {}).get("estado_tarea", "SIN_ESTADO")
-            counts[estado] = counts.get(estado, 0) + 1
+            fields = record.get("fields", {})
+            responsable = fields.get("responsable")
+            
+            # responsable es un objeto {"id": "recXXX", "title": "Nombre"}
+            if isinstance(responsable, dict) and responsable.get("id") == member_id:
+                estado = fields.get("estado_tarea", "SIN_ESTADO")
+                counts[estado] = counts.get(estado, 0) + 1
 
         return {
             "responsable": member_name,

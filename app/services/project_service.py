@@ -5,11 +5,7 @@ from app.config import settings
 from app.utils.mapping import map_project_record
 from app.schemas.projects import ProjectCreate, ProjectUpdate
 from datetime import datetime
-
-
 from app.utils.cache import project_cache
-
-PROJECT_NAME_FIELD_ID = "fldsn21iQ3qa5pd1Wce"
 
 
 class ProjectService:

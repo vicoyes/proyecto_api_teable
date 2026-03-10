@@ -1,12 +1,7 @@
 from app.clients.teable import TeableClient
 from app.config import settings
 from app.utils.mapping import map_team_record
-
-
 from app.utils.cache import team_cache
-
-
-TEAM_NAME_FIELD_ID = "fldddIJXn7MmezcIy5o"
 
 
 class TeamService:
