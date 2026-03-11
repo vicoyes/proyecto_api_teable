@@ -1,6 +1,7 @@
 from app.schemas.projects import ProjectResponse
 from app.schemas.tasks import LinkedRecordRef, TaskResponse
 from app.schemas.team import TeamMemberResponse
+from app.schemas.clientes import ClienteResponse
 
 
 def map_linked_record(value):
@@ -64,4 +65,16 @@ def map_project_record(record: dict) -> ProjectResponse:
         descripcion=fields.get("descripcion"),
         fecha_inicio=fields.get("fecha_inicio"),
         fecha_fin=fields.get("fecha_fin"),
+    )
+
+def map_cliente_record(record: dict) -> ClienteResponse:
+    fields = record.get("fields", {})
+    return ClienteResponse(
+        id=record["id"],
+        etiqueta=fields.get("Etiqueta"),
+        nombre_del_cliente=fields.get("Nombre del Cliente"),
+        email=fields.get("Email"),
+        empresa=fields.get("Empresa"),
+        numero_de_telefono=fields.get("Numero de telefono"),
+        notas=fields.get("Notas"),
     )

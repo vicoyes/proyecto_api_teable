@@ -8,6 +8,7 @@ from app.routers.health import router as health_router
 from app.routers.projects import router as projects_router
 from app.routers.tasks import router as tasks_router
 from app.routers.team import router as team_router
+from app.routers.clientes import router as clientes_router
 from app.dependencies import verify_api_key
 
 from app.routers.options import router as options_router
@@ -43,3 +44,4 @@ app.include_router(options_router, dependencies=[Depends(verify_api_key)])
 app.include_router(tasks_router, dependencies=[Depends(verify_api_key)])
 app.include_router(team_router, dependencies=[Depends(verify_api_key)])
 app.include_router(projects_router, dependencies=[Depends(verify_api_key)])
+app.include_router(clientes_router, dependencies=[Depends(verify_api_key)])

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     teable_table_tasks: str
     teable_table_team: str
     teable_table_projects: str
+    teable_table_clientes: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
