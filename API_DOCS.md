@@ -108,7 +108,40 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 `GET /tasks/by-member/{member_name}/summary`
 - **Descripción:** Devuelve los conteos agregados de las tareas de un miembro por estado (Ej. Cuántas tiene En Progreso, Bloqueadas, etc.)
 
-### 3. Equipo y Proyectos (`/team` y `/projects`)
+### 3. Clientes (`/clientes`)
+
+`GET /clientes`
+- **Descripción:** Obtiene un listado paginado de clientes.
+- **Query Params:** `skip` (int, default: 0), `take` (int, default: 50).
+
+`GET /clientes/{cliente_id}`
+- **Descripción:** Obtiene el detalle de un cliente usando su ID interno de Teable (no la etiqueta).
+- **Responde:** `404 Not Found` si no existe.
+
+`POST /clientes`
+- **Descripción:** Crea un nuevo cliente.
+- **Payload Requerido:** 
+  - `etiqueta`: string (Etiqueta principal del cliente)
+- **Campos Opcionales:** `nombre_del_cliente`, `email`, `empresa`, `numero_de_telefono`, `notas`.
+- **Ejemplo de Payload:**
+  ```json
+  {
+    "etiqueta": "CLI-1049",
+    "nombre_del_cliente": "Juan Pérez",
+    "email": "juan.perez@ejemplo.com",
+    "empresa": "Ejemplo S.L.",
+    "numero_de_telefono": "+34 600 000 000",
+    "notas": "Cliente prioritario de la campaña Q1."
+  }
+  ```
+
+`PATCH /clientes/{cliente_id}`
+- **Descripción:** Permite modificar parcialmente cualquier atributo de un cliente enviado en el payload.
+
+`DELETE /clientes/{cliente_id}`
+- **Descripción:** Elimina el registro del cliente de Teable permanentemente.
+
+### 4. Equipo y Proyectos (`/team` y `/projects`)
 
 `GET /team`
 - **Descripción:** Lista los miembros disponibles en la base de datos de Teable. *Nota: Este endpoint tiene una caché de memoria (TTL: 5 min) para evitar golpear constantemente la API externa.*
