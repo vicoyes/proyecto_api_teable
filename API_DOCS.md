@@ -55,7 +55,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 La documentación interactiva en formato OpenAPI/Swagger está disponible en la ruta `/docs` (ej.: `http://192.168.1.22:8002/docs`) tras arrancar la API.
 
-Toda ruta de negocio (todo bajo `/tasks`, `/team`, `/projects`, `/options`) requiere autenticación básica de cabecera si la variable `APP_API_KEY` está definida.
+Toda ruta de negocio (todo bajo `/tasks`, `/team`, `/projects`, `/options`, `/clientes`, `/correos-electronicos`) requiere autenticación por cabecera si la variable `APP_API_KEY` está definida.
 
 **Header requerido para autenticación:** `X-API-Key: tu_clave_secreta`
 
@@ -141,7 +141,19 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 `DELETE /clientes/{cliente_id}`
 - **Descripción:** Elimina el registro del cliente de Teable permanentemente.
 
-### 4. Equipo y Proyectos (`/team` y `/projects`)
+### 4. Correos electrónicos (`/correos-electronicos`)
+
+*Solo lectura (GET).*
+
+`GET /correos-electronicos`
+- **Descripción:** Lista correos electrónicos con paginación. Opcionalmente filtra por email del remitente o del destinatario.
+- **Query Params:** `skip` (int, default: 0), `take` (int, default: 100, máx: 1000), `email` (str, opcional — filtrar por remitente `from_email`), `to_email` (str, opcional — filtrar por destinatario).
+
+`GET /correos-electronicos/{record_id}`
+- **Descripción:** Obtiene un correo electrónico por su ID de registro de Teable.
+- **Responde:** `404 Not Found` si no existe.
+
+### 5. Equipo y Proyectos (`/team` y `/projects`)
 
 `GET /team`
 - **Descripción:** Lista los miembros disponibles en la base de datos de Teable. *Nota: Este endpoint tiene una caché de memoria (TTL: 5 min) para evitar golpear constantemente la API externa.*
