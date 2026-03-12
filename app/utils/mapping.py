@@ -2,6 +2,7 @@ from app.schemas.projects import ProjectResponse
 from app.schemas.tasks import LinkedRecordRef, TaskResponse
 from app.schemas.team import TeamMemberResponse
 from app.schemas.clientes import ClienteResponse
+from app.schemas.correos import CorreoResponse
 
 
 def map_linked_record(value):
@@ -77,4 +78,33 @@ def map_cliente_record(record: dict) -> ClienteResponse:
         empresa=fields.get("Empresa"),
         numero_de_telefono=fields.get("Numero de telefono"),
         notas=fields.get("Notas"),
+    )
+
+
+def map_correo_record(record: dict) -> CorreoResponse:
+    fields = record.get("fields", {})
+    return CorreoResponse(
+        id=record["id"],
+        date_iso=fields.get("date_iso"),
+        from_name=fields.get("from_name"),
+        from_email=fields.get("from_email"),
+        to_email=fields.get("to_email"),
+        subject=fields.get("subject"),
+        body_clean=fields.get("body_clean"),
+        status=fields.get("status"),
+        proposed_reply=fields.get("proposed_reply"),
+        approval_status=fields.get("approval_status"),
+        approved_reply=fields.get("approved_reply"),
+        responded=fields.get("responded"),
+        thread_key=fields.get("thread_key"),
+        notes=fields.get("notes"),
+        ai_summary=fields.get("ai_summary"),
+        ai_sentiment=fields.get("ai_sentiment"),
+        ai_intent=fields.get("ai_intent"),
+        ai_priority=fields.get("ai_priority"),
+        ai_requires_reply=fields.get("ai_requires_reply"),
+        ai_category=fields.get("ai_category"),
+        remitente_original_email=fields.get("remitente_original_email"),
+        nombre_del_remitente_original=fields.get("nombre_del_remitente_original"),
+        Tipo=fields.get("Tipo"),
     )

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     teable_table_team: str
     teable_table_projects: str
     teable_table_clientes: str
+    teable_table_correos: str
 
     auth_username: str = "admin"
     auth_password: str = "admin"
