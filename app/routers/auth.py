@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from jose import jwt
-from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import Depends
 
@@ -18,10 +17,8 @@ class LoginResponse(BaseModel):
     nombre: str
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(hours=24))
-    to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.auth_secret_key, algorithm="HS256")
 
 
