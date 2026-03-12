@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 import time
 import logging
 import json
@@ -25,30 +26,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://portal.empiezadecero.es"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    
-    log_dict = {
-        "method": request.method,
-        "url": str(request.url),
-        "status_code": response.status_code,
-        "process_time_ms": round(process_time * 1000, 2)
-    }
-    logger.info(json.dumps(log_dict))
-    
-    return response
-
+# -- Register routers BEFORE middleware --
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(options_router, dependencies=[Depends(verify_api_key)])
@@ -56,3 +34,33 @@ app.include_router(tasks_router, dependencies=[Depends(verify_api_key)])
 app.include_router(team_router, dependencies=[Depends(verify_api_key)])
 app.include_router(projects_router, dependencies=[Depends(verify_api_key)])
 app.include_router(clientes_router, dependencies=[Depends(verify_api_key)])
+
+
+# -- Logging middleware (inner - added first) --
+class LogRequestsMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+
+        log_dict = {
+            "method": request.method,
+            "url": str(request.url),
+            "status_code": response.status_code,
+            "process_time_ms": round(process_time * 1000, 2),
+        }
+        logger.info(json.dumps(log_dict))
+
+        return response
+
+
+app.add_middleware(LogRequestsMiddleware)
+
+# -- CORS middleware (outer - added last so it wraps everything) --
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://portal.empiezadecero.es"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
