@@ -53,7 +53,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 ## Referencia de la API (Endpoints)
 
-La documentación interactiva en formato OpenAPI/Swagger está disponible en la ruta `/docs` (ej.: `http://localhost:8002/docs`) tras arrancar la API.
+La documentación interactiva en formato OpenAPI/Swagger está disponible en la ruta `/docs` (ej.: `http://192.168.1.22:8002/docs`) tras arrancar la API.
 
 Toda ruta de negocio (todo bajo `/tasks`, `/team`, `/projects`, `/options`) requiere autenticación básica de cabecera si la variable `APP_API_KEY` está definida.
 

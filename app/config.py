@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     teable_table_projects: str
     teable_table_clientes: str
 
+    auth_username: str = "admin"
+    auth_password: str = "admin"
+    auth_secret_key: str = "change-me-in-production"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
