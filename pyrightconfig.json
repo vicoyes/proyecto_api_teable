@@ -1,0 +1,10 @@
+{
+  "executionEnvironments": [
+    {
+      "root": "."
+    }
+  ],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportGeneralTypeIssues": "warning"
+}
