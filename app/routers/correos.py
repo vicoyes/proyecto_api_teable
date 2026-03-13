@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
 
-from app.schemas.correos import CorreoListResponse, CorreoResponse
+from app.schemas.correos import CorreoListResponse, CorreoResponse, CorreoUpdate
 from app.services.correo_service import CorreoService
 
 
@@ -24,3 +24,10 @@ async def get_correo(record_id: str):
     """Obtiene un correo electrónico por su ID de registro."""
     service = CorreoService()
     return await service.get_correo(record_id)
+
+
+@router.patch("/{record_id}", response_model=CorreoResponse)
+async def update_correo(record_id: str, payload: CorreoUpdate):
+    """Actualiza campos de un correo existente. No crea registros nuevos."""
+    service = CorreoService()
+    return await service.update_correo(record_id, payload)

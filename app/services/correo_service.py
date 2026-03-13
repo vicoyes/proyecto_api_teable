@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from app.clients.teable import TeableClient
 from app.config import settings
 from app.utils.mapping import map_correo_record
+from app.schemas.correos import CorreoUpdate
 
 # Field IDs de la tabla correos_electronicos (para filter/orderBy en Teable)
 FLD_FROM_EMAIL = "fldxvpeSMYBnp6oztfp"
@@ -30,6 +31,15 @@ class CorreoService:
                     return value
 
         return default_message
+
+    @staticmethod
+    def _map_to_teable(fields: dict) -> dict:
+        """Mapea los nombres del payload a los nombres de campo en Teable.
+
+        En esta tabla coinciden 1:1, pero dejamos el método por si en el futuro
+        hubiera diferencias de naming.
+        """
+        return {k: v for k, v in fields.items() if v is not None}
 
     async def list_correos(
         self,
@@ -65,4 +75,24 @@ class CorreoService:
             if exc.response.status_code == status.HTTP_404_NOT_FOUND:
                 raise HTTPException(status_code=404, detail="Correo no encontrado") from exc
             detail = self._build_teable_error_detail(exc, "Error obteniendo correo")
+            raise HTTPException(status_code=exc.response.status_code, detail=detail) from exc
+
+    async def update_correo(self, record_id: str, payload: CorreoUpdate):
+        fields = payload.model_dump(exclude_unset=True)
+
+        if not fields:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se enviaron campos para actualizar",
+            )
+
+        teable_fields = self._map_to_teable(fields)
+
+        try:
+            response = await self.client.update_record(self.table_id, record_id, teable_fields)
+            return map_correo_record(response)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == status.HTTP_404_NOT_FOUND:
+                raise HTTPException(status_code=404, detail="Correo no encontrado") from exc
+            detail = self._build_teable_error_detail(exc, "Error actualizando correo")
             raise HTTPException(status_code=exc.response.status_code, detail=detail) from exc
