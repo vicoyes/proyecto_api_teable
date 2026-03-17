@@ -30,6 +30,10 @@ async def verify_api_key(
     if settings.app_api_key and api_key == settings.app_api_key:
         return api_key
 
+    # 3. Si no hay APP_API_KEY configurada (ej. uso solo en red local), no exigir auth
+    if not settings.app_api_key:
+        return None
+
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or missing credentials",
