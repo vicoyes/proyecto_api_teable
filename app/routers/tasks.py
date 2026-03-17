@@ -77,3 +77,23 @@ async def get_tasks_by_member(
 async def get_member_task_summary(member_name: str):
     service = TaskService()
     return await service.get_member_task_summary(member_name)
+
+
+@router.get("/by-project/{project_id}")
+async def get_tasks_by_project(
+    project_id: str,
+    estado: str | None = Query(None),
+):
+    """Lista tareas asociadas a un proyecto concreto."""
+    service = TaskService()
+    return await service.get_tasks_by_project(project_id, estado=estado)
+
+
+@router.get("/by-client/{cliente_id}")
+async def get_tasks_by_client(
+    cliente_id: str,
+    estado: str | None = Query(None),
+):
+    """Lista tareas asociadas a todos los proyectos de un cliente."""
+    service = TaskService()
+    return await service.get_tasks_by_client(cliente_id, estado=estado)

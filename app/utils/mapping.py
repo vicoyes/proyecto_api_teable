@@ -34,7 +34,8 @@ def map_task_record(record: dict) -> TaskResponse:
         resultado=fields.get("resultado"),
         evidencias=fields.get("evidencias"),
         responsable=map_linked_record(fields.get("responsable")),
-        proyecto=map_linked_record(fields.get("proyecto")),
+        # Campo relacional en Teable: "Proyecto"
+        proyecto=map_linked_record(fields.get("Proyecto")),
     )
 
 
@@ -58,7 +59,8 @@ def map_project_record(record: dict) -> ProjectResponse:
     return ProjectResponse(
         id=record["id"],
         nombre_proyecto=fields.get("nombre_proyecto"),
-        cliente=fields.get("cliente"),
+        # Campo relacional en Teable: "Cliente"
+        cliente=map_linked_record(fields.get("Cliente")),
         tipo_proyecto=fields.get("tipo_proyecto"),
         estado_proyecto=fields.get("estado_proyecto"),
         prioridad_proyecto=fields.get("prioridad_proyecto"),

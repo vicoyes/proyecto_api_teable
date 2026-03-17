@@ -41,6 +41,32 @@ class ProjectService:
         project_cache.set(cache_key, result)
         return result
 
+    async def list_projects_by_client(self, cliente_id: str, skip: int = 0, take: int = 100):
+        """Lista proyectos vinculados a un cliente concreto (filter local por campo Cliente)."""
+        # Reutilizamos la caché de proyectos para evitar golpear Teable en exceso.
+        cache_key = "all_projects_for_client_search"
+        cached = project_cache.get(cache_key)
+
+        if cached:
+            records = cached
+        else:
+            data = await self.client.list_records(self.table_id, take=500)
+            records = data.get("records", [])
+            project_cache.set(cache_key, records)
+
+        filtered_records = []
+        for record in records:
+            fields = record.get("fields", {})
+            cliente = fields.get("Cliente")
+            # Cliente es un objeto {"id": "recXXX", "title": "..."} o None
+            if isinstance(cliente, dict) and cliente.get("id") == cliente_id:
+                filtered_records.append(record)
+
+        # Aplicar paginación sobre el resultado filtrado
+        paginated = filtered_records[skip:skip + take]
+        items = [map_project_record(record) for record in paginated]
+        return {"total": len(items), "items": items}
+
     async def create_project(self, project_data: ProjectCreate):
         fields = project_data.model_dump(exclude_unset=True)
         # Convert datetime to string if needed

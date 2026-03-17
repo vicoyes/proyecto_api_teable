@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.schemas.tasks import LinkedRecordRef
 
 
 ProjectType = Literal[
@@ -19,7 +20,8 @@ ProjectPriority = Literal["BAJA", "MEDIA", "ALTA", "CRÍTICA"]
 class ProjectResponse(BaseModel):
     id: str
     nombre_proyecto: str | None = None
-    cliente: str | None = None
+    # Cliente vinculado (registro de la tabla clientes)
+    cliente: LinkedRecordRef | None = None
     tipo_proyecto: str | None = None
     estado_proyecto: str | None = None
     prioridad_proyecto: str | None = None

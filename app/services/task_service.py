@@ -80,7 +80,8 @@ class TaskService:
             project = await self.project_service.get_project_by_name(payload.proyecto)
             if not project:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
-            fields["proyecto"] = self._build_link_field(project)
+            # Campo relacional en Teable se llama "Proyecto"
+            fields["Proyecto"] = self._build_link_field(project)
 
         teable_fields = {k: v for k, v in fields.items() if v is not None}
 
@@ -111,7 +112,8 @@ class TaskService:
             project = await self.project_service.get_project_by_name(payload.proyecto)
             if not project:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
-            fields["proyecto"] = self._build_link_field(project)
+            # Campo relacional en Teable se llama "Proyecto"
+            fields["Proyecto"] = self._build_link_field(project)
 
         if payload.estado_tarea == "EN_PROGRESO" and "fecha_inicio" not in fields:
             fields["fecha_inicio"] = datetime.now(timezone.utc).isoformat()
@@ -203,4 +205,67 @@ class TaskService:
         return {
             "responsable": member_name,
             "counts": counts,
+        }
+
+    async def get_tasks_by_project(self, project_id: str, estado: str | None = None):
+        """Obtiene tareas asociadas a un proyecto (filter local por campo relacional Proyecto)."""
+        # Cargamos un número razonable de tareas y filtramos localmente,
+        # siguiendo el patrón usado en otros métodos.
+        data = await self.client.list_records(self.table_id, take=500)
+
+        filtered_records = []
+        for record in data.get("records", []):
+            fields = record.get("fields", {})
+            proyecto = fields.get("Proyecto")
+
+            # Proyecto es un objeto {"id": "recXXX", "title": "..."} o None
+            if isinstance(proyecto, dict) and proyecto.get("id") == project_id:
+                if estado is None or fields.get("estado_tarea") == estado:
+                    filtered_records.append(record)
+
+        items = [map_task_record(record) for record in filtered_records]
+        return {
+            "proyecto_id": project_id,
+            "estado": estado,
+            "total": len(items),
+            "items": items,
+        }
+
+    async def get_tasks_by_client(self, cliente_id: str, estado: str | None = None):
+        """Obtiene tareas asociadas a todos los proyectos de un cliente."""
+        # 1) Obtener todos los proyectos de ese cliente
+        from app.services.project_service import ProjectService  # import local para evitar ciclos
+
+        project_service = ProjectService()
+        proyectos_data = await project_service.list_projects_by_client(cliente_id)
+        project_ids = [item.id for item in proyectos_data["items"]]
+
+        if not project_ids:
+            return {
+                "cliente_id": cliente_id,
+                "estado": estado,
+                "total": 0,
+                "items": [],
+            }
+
+        # 2) Cargar tareas y filtrar localmente por Proyecto.id en project_ids
+        data = await self.client.list_records(self.table_id, take=500)
+
+        filtered_records = []
+        project_ids_set = set(project_ids)
+
+        for record in data.get("records", []):
+            fields = record.get("fields", {})
+            proyecto = fields.get("Proyecto")
+
+            if isinstance(proyecto, dict) and proyecto.get("id") in project_ids_set:
+                if estado is None or fields.get("estado_tarea") == estado:
+                    filtered_records.append(record)
+
+        items = [map_task_record(record) for record in filtered_records]
+        return {
+            "cliente_id": cliente_id,
+            "estado": estado,
+            "total": len(items),
+            "items": items,
         }
