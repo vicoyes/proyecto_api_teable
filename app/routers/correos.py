@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Query
 
 from app.schemas.correos import CorreoListResponse, CorreoResponse, CorreoUpdate
@@ -13,10 +15,14 @@ async def list_correos(
     take: int = Query(100, ge=1, le=1000),
     email: str | None = Query(None, description="Filtrar por email del remitente (from_email)"),
     to_email: str | None = Query(None, description="Filtrar por email del destinatario (to_email)"),
+    tipo: Literal["enviado", "recibido"] | None = Query(
+        None,
+        description="Filtrar por tipo de correo: enviado o recibido",
+    ),
 ):
-    """Lista correos electrónicos. Opcionalmente filtra por remitente (email) o destinatario (to_email)."""
+    """Lista correos electrónicos. Filtros opcionales: email, to_email, tipo (enviado|recibido)."""
     service = CorreoService()
-    return await service.list_correos(skip=skip, take=take, email=email, to_email=to_email)
+    return await service.list_correos(skip=skip, take=take, email=email, to_email=to_email, tipo=tipo)
 
 
 @router.get("/{record_id}", response_model=CorreoResponse)

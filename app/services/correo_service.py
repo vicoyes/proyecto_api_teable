@@ -9,12 +9,20 @@ from app.schemas.correos import CorreoUpdate
 # Field IDs de la tabla correos_electronicos (para filter/orderBy en Teable)
 FLD_FROM_EMAIL = "fldxvpeSMYBnp6oztfp"
 FLD_TO_EMAIL = "fldALpB0mAyL1u1PS9O"
+FLD_TIPO = "fldJNY0SvDFpBnKvFqG"  # Single select: recibido, enviado
 
 
 class CorreoService:
     def __init__(self) -> None:
         self.client = TeableClient()
-        self.table_id = settings.teable_table_correos
+        self.table_id = (settings.teable_table_correos or "").strip()
+
+    def _require_table_id(self) -> None:
+        if not self.table_id:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Correos no configurados: defina TEABLE_TABLE_CORREOS en el entorno (ej. .env o Portainer).",
+            )
 
     @staticmethod
     def _build_teable_error_detail(exc: httpx.HTTPStatusError, default_message: str) -> str:
@@ -47,14 +55,18 @@ class CorreoService:
         take: int = 100,
         email: str | None = None,
         to_email: str | None = None,
+        tipo: str | None = None,
     ):
+        self._require_table_id()
         filter_obj = None
-        if email or to_email:
+        if email or to_email or tipo:
             filter_set = []
             if email:
                 filter_set.append({"fieldId": FLD_FROM_EMAIL, "operator": "is", "value": email})
             if to_email:
                 filter_set.append({"fieldId": FLD_TO_EMAIL, "operator": "is", "value": to_email})
+            if tipo:
+                filter_set.append({"fieldId": FLD_TIPO, "operator": "is", "value": tipo})
             filter_obj = {"conjunction": "and", "filterSet": filter_set}
 
         data = await self.client.list_records(
@@ -68,6 +80,7 @@ class CorreoService:
         return {"total": len(items), "items": items}
 
     async def get_correo(self, record_id: str):
+        self._require_table_id()
         try:
             record = await self.client.get_record(self.table_id, record_id)
             return map_correo_record(record)
@@ -78,6 +91,7 @@ class CorreoService:
             raise HTTPException(status_code=exc.response.status_code, detail=detail) from exc
 
     async def update_correo(self, record_id: str, payload: CorreoUpdate):
+        self._require_table_id()
         fields = payload.model_dump(exclude_unset=True)
 
         if not fields:
