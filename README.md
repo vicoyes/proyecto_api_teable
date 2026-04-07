@@ -46,6 +46,10 @@ http://localhost:8002/docs
 - `GET /tasks/by-member/{member_name}`
 - `GET /tasks/by-member/{member_name}/summary`
 
+### Tickets
+- `GET /tickets` · `GET /tickets/{ticket_id}` · `POST /tickets` · `PATCH /tickets/{ticket_id}` · `DELETE /tickets/{ticket_id}`
+- Documentación: [docs/TICKETS.md](docs/TICKETS.md)
+
 ### Team
 - `GET /team`
 

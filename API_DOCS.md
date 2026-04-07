@@ -31,6 +31,7 @@ TEABLE_API_TOKEN="tu_token_de_teable"
 TEABLE_TABLE_TASKS="tblcIYqqfI1gx8dCctA"
 TEABLE_TABLE_TEAM="tblqbwuo04ZhdHq4Egm"
 TEABLE_TABLE_PROJECTS="tblkdYU3GrAdAPHrajt"
+TEABLE_TABLE_TICKETS="tblF4h8mUQKVNmUR9a8"
 ```
 
 ### Despliegue en Producción (Docker / Portainer)
@@ -55,7 +56,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 La documentación interactiva en formato OpenAPI/Swagger está disponible en la ruta `/docs` (ej.: `http://192.168.1.22:8002/docs`) tras arrancar la API.
 
-Toda ruta de negocio (todo bajo `/tasks`, `/team`, `/projects`, `/options`, `/clientes`, `/correos-electronicos`) requiere autenticación por cabecera si la variable `APP_API_KEY` está definida.
+Toda ruta de negocio (todo bajo `/tasks`, `/tickets`, `/team`, `/projects`, `/options`, `/clientes`, `/correos-electronicos`) requiere autenticación por cabecera si la variable `APP_API_KEY` está definida.
 
 **Header requerido para autenticación:** `X-API-Key: tu_clave_secreta`
 
@@ -108,7 +109,15 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 `GET /tasks/by-member/{member_name}/summary`
 - **Descripción:** Devuelve los conteos agregados de las tareas de un miembro por estado (Ej. Cuántas tiene En Progreso, Bloqueadas, etc.)
 
-### 3. Clientes (`/clientes`)
+### 3. Tickets (`/tickets`)
+
+Proxy CRUD sobre la tabla **tickets** en Teable (campos de diagnóstico, WBS, borradores, etc.).
+
+- **Documentación detallada:** [docs/TICKETS.md](docs/TICKETS.md) (autenticación, variables de entorno, mapeo `estado` ↔ Teable, ejemplos `curl`).
+- **Endpoints:** `GET /tickets`, `GET /tickets/{ticket_id}`, `POST /tickets`, `PATCH /tickets/{ticket_id}`, `DELETE /tickets/{ticket_id}`.
+- **Nota:** En creación, `estado` por defecto es **`Nuevo`** si no se envía en el JSON.
+
+### 4. Clientes (`/clientes`)
 
 `GET /clientes`
 - **Descripción:** Obtiene un listado paginado de clientes.
@@ -141,7 +150,7 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 `DELETE /clientes/{cliente_id}`
 - **Descripción:** Elimina el registro del cliente de Teable permanentemente.
 
-### 4. Correos electrónicos (`/correos-electronicos`)
+### 5. Correos electrónicos (`/correos-electronicos`)
 
 *Solo lectura (GET).*
 
@@ -153,7 +162,7 @@ Diseñados para ejecutar operaciones de negocio recurrentes de forma ágil sin e
 - **Descripción:** Obtiene un correo electrónico por su ID de registro de Teable.
 - **Responde:** `404 Not Found` si no existe.
 
-### 5. Equipo y Proyectos (`/team` y `/projects`)
+### 6. Equipo y Proyectos (`/team` y `/projects`)
 
 `GET /team`
 - **Descripción:** Lista los miembros disponibles en la base de datos de Teable. *Nota: Este endpoint tiene una caché de memoria (TTL: 5 min) para evitar golpear constantemente la API externa.*
