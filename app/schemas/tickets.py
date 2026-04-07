@@ -1,10 +1,22 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
+
+
+TicketEstado = Literal[
+    "Planificado",
+    "En ejecucion",
+    "Completado",
+    "Bloqueado",
+    "Cancelado",
+]
 
 
 class TicketResponse(BaseModel):
     id: str
     # Campo Teable "id" (número primario en la tabla)
     numero_ticket: float | int | None = None
+    estado: TicketEstado | None = None
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
@@ -25,6 +37,7 @@ class TicketResponse(BaseModel):
 
 class TicketCreate(BaseModel):
     numero_ticket: float | int | None = Field(None, description='Valor del campo Teable "id" (número) si lo editas manualmente')
+    estado: TicketEstado | None = None
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
@@ -43,6 +56,7 @@ class TicketCreate(BaseModel):
 
 class TicketUpdate(BaseModel):
     numero_ticket: float | int | None = None
+    estado: TicketEstado | None = None
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None

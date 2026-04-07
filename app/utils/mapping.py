@@ -89,6 +89,7 @@ def map_ticket_record(record: dict) -> TicketResponse:
     return TicketResponse(
         id=record["id"],
         numero_ticket=fields.get("id"),
+        estado=fields.get("Estado"),
         resumen_ejecutivo=fields.get("resumen_ejecutivo"),
         nivel_urgencia=fields.get("nivel_urgencia"),
         departamento_principal=fields.get("departamento_principal"),

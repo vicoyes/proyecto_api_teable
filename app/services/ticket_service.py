@@ -37,6 +37,8 @@ class TicketService:
                 continue
             if k == "numero_ticket":
                 out["id"] = v
+            elif k == "estado":
+                out["Estado"] = v
             else:
                 out[k] = v
         return out
