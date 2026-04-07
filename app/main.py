@@ -12,6 +12,7 @@ from app.routers.tasks import router as tasks_router
 from app.routers.team import router as team_router
 from app.routers.clientes import router as clientes_router
 from app.routers.correos import router as correos_router
+from app.routers.tickets import router as tickets_router
 from app.dependencies import verify_api_key
 from app.routers.auth import router as auth_router
 
@@ -36,6 +37,7 @@ app.include_router(team_router, dependencies=[Depends(verify_api_key)])
 app.include_router(projects_router, dependencies=[Depends(verify_api_key)])
 app.include_router(clientes_router, dependencies=[Depends(verify_api_key)])
 app.include_router(correos_router, dependencies=[Depends(verify_api_key)])
+app.include_router(tickets_router, dependencies=[Depends(verify_api_key)])
 
 
 # -- Logging middleware (inner - added first) --

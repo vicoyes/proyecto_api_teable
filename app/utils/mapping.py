@@ -3,6 +3,7 @@ from app.schemas.tasks import LinkedRecordRef, TaskResponse
 from app.schemas.team import TeamMemberResponse
 from app.schemas.clientes import ClienteResponse
 from app.schemas.correos import CorreoResponse
+from app.schemas.tickets import TicketResponse
 
 
 def map_linked_record(value):
@@ -80,6 +81,28 @@ def map_cliente_record(record: dict) -> ClienteResponse:
         empresa=fields.get("Empresa"),
         numero_de_telefono=fields.get("Numero de telefono"),
         notas=fields.get("Notas"),
+    )
+
+
+def map_ticket_record(record: dict) -> TicketResponse:
+    fields = record.get("fields", {})
+    return TicketResponse(
+        id=record["id"],
+        numero_ticket=fields.get("id"),
+        resumen_ejecutivo=fields.get("resumen_ejecutivo"),
+        nivel_urgencia=fields.get("nivel_urgencia"),
+        departamento_principal=fields.get("departamento_principal"),
+        perfiles_requeridos=fields.get("perfiles_requeridos"),
+        tiempo_estimado_horas=fields.get("tiempo_estimado_horas"),
+        tiempo_estimado_horas_min=fields.get("tiempo_estimado_horas_min"),
+        tiempo_estimado_horas_max=fields.get("tiempo_estimado_horas_max"),
+        wbs_paso_1=fields.get("wbs_paso_1"),
+        wbs_paso_2=fields.get("wbs_paso_2"),
+        wbs_paso_3=fields.get("wbs_paso_3"),
+        wbs_paso_4=fields.get("wbs_paso_4"),
+        wbs_tareas_consolidado=fields.get("wbs_tareas_consolidado"),
+        borrador_respuesta_cliente=fields.get("borrador_respuesta_cliente"),
+        json_original=fields.get("json_original"),
     )
 
 

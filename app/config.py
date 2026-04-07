@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     teable_table_projects: str
     teable_table_clientes: str
     teable_table_correos: str | None = None  # Opcional: si no se define, endpoints de correos devuelven 503
+    teable_table_tickets: str = "tblF4h8mUQKVNmUR9a8"
 
     # Tabla tareas: enlace a proyecto. Nombre de columna en Teable (fieldKeyType=name).
     teable_field_tasks_proyecto: str = "Proyecto"
