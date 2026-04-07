@@ -76,18 +76,33 @@ class TaskService:
                 raise HTTPException(status_code=404, detail="Responsable no encontrado")
             fields["responsable"] = self._build_link_field(member)
 
+        project_link: dict[str, str] | None = None
         if payload.proyecto:
             project = await self.project_service.get_project_by_id_or_name(payload.proyecto)
             if not project:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
-            # Campo relacional en Teable se llama "Proyecto"
-            fields["Proyecto"] = self._build_link_field(project)
+            project_link = self._build_link_field(project)
+
+        # El schema usa "proyecto"; Teable espera "Proyecto" o el field id fld… (no enviar la clave en minúsculas)
+        fields.pop("proyecto", None)
+        proyecto_fld = (settings.teable_field_tasks_proyecto_fld or "").strip()
+        if project_link and not proyecto_fld:
+            fields[settings.teable_field_tasks_proyecto] = project_link
 
         teable_fields = {k: v for k, v in fields.items() if v is not None}
 
         try:
             data = await self.client.create_record(self.table_id, teable_fields)
             record = data.get("records", [])[0]
+            rid = record["id"]
+            if project_link and proyecto_fld:
+                await self.client.update_record(
+                    self.table_id,
+                    rid,
+                    {proyecto_fld: project_link},
+                    field_key_type="id",
+                )
+                record = await self.client.get_record(self.table_id, rid)
             return map_task_record(record)
         except httpx.HTTPStatusError as exc:
             detail = self._build_teable_error_detail(exc, "Error creando tarea")
@@ -96,24 +111,23 @@ class TaskService:
     async def update_task(self, task_id: str, payload: TaskUpdate):
         fields = payload.model_dump(exclude_none=True)
 
-        if not fields:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No se enviaron campos para actualizar",
-            )
-
         if payload.responsable:
             member = await self.team_service.get_member_by_name(payload.responsable)
             if not member:
                 raise HTTPException(status_code=404, detail="Responsable no encontrado")
             fields["responsable"] = self._build_link_field(member)
 
+        project_link: dict[str, str] | None = None
         if payload.proyecto:
             project = await self.project_service.get_project_by_id_or_name(payload.proyecto)
             if not project:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
-            # Campo relacional en Teable se llama "Proyecto"
-            fields["Proyecto"] = self._build_link_field(project)
+            project_link = self._build_link_field(project)
+
+        fields.pop("proyecto", None)
+        proyecto_fld = (settings.teable_field_tasks_proyecto_fld or "").strip()
+        if project_link and not proyecto_fld:
+            fields[settings.teable_field_tasks_proyecto] = project_link
 
         if payload.estado_tarea == "EN_PROGRESO" and "fecha_inicio" not in fields:
             fields["fecha_inicio"] = datetime.now(timezone.utc).isoformat()
@@ -123,8 +137,26 @@ class TaskService:
 
         teable_fields = {k: v for k, v in fields.items() if v is not None}
 
+        if not teable_fields and not (project_link and proyecto_fld):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se enviaron campos para actualizar",
+            )
+
         try:
-            data = await self.client.update_record(self.table_id, task_id, teable_fields)
+            data = None
+            if teable_fields:
+                data = await self.client.update_record(self.table_id, task_id, teable_fields)
+            if project_link and proyecto_fld:
+                await self.client.update_record(
+                    self.table_id,
+                    task_id,
+                    {proyecto_fld: project_link},
+                    field_key_type="id",
+                )
+                data = await self.client.get_record(self.table_id, task_id)
+            elif data is None:
+                data = await self.client.get_record(self.table_id, task_id)
             return map_task_record(data)
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code == status.HTTP_404_NOT_FOUND:

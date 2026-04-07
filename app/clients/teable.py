@@ -49,10 +49,16 @@ class TeableClient:
             response.raise_for_status()
             return response.json()
 
-    async def create_record(self, table_id: str, fields: dict[str, Any]) -> dict[str, Any]:
+    async def create_record(
+        self,
+        table_id: str,
+        fields: dict[str, Any],
+        *,
+        field_key_type: str = "name",
+    ) -> dict[str, Any]:
         url = f"{self.base_url}/api/table/{table_id}/record"
         payload = {
-            "fieldKeyType": "name",
+            "fieldKeyType": field_key_type,
             "records": [{"fields": fields}],
         }
 
@@ -61,10 +67,17 @@ class TeableClient:
             response.raise_for_status()
             return response.json()
 
-    async def update_record(self, table_id: str, record_id: str, fields: dict[str, Any]) -> dict[str, Any]:
+    async def update_record(
+        self,
+        table_id: str,
+        record_id: str,
+        fields: dict[str, Any],
+        *,
+        field_key_type: str = "name",
+    ) -> dict[str, Any]:
         url = f"{self.base_url}/api/table/{table_id}/record/{record_id}"
         payload = {
-            "fieldKeyType": "name",
+            "fieldKeyType": field_key_type,
             "record": {"fields": fields},
         }
 
