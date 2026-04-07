@@ -105,6 +105,11 @@ Todos son opcionales en el schema; en **PATCH** solo manda los que cambien.
 |-----------|------|--------|
 | `numero_ticket` | number | Se mapea al campo Teable **`id`** (número). Si en Teable es autogenerado, puede no ser necesario enviarlo al crear. |
 | `estado` | string | Ver tabla de valores arriba. Default en **POST:** `Nuevo`. |
+| `titulo` | string | Se guarda en Teable como **`Titulo`**. |
+| `descripcion` | string | Texto largo; en Teable el campo se llama **`Descripcion `** (con espacio final). |
+| `fecha_propuesta` | string | En Teable: **`Fecha_propuesta`** (texto). |
+| `proyecto` | string | Nombre exacto del proyecto o ID `rec…`; la API resuelve el enlace (campo Teable **`proyecto`**). |
+| `adjunto` | JSON | Archivos adjuntos según formato que acepte Teable para el campo **`adjunto`**; consulta la API de Teable para subir ficheros. |
 | `resumen_ejecutivo` | string | |
 | `nivel_urgencia` | string | |
 | `departamento_principal` | string | |
@@ -119,7 +124,7 @@ Todos son opcionales en el schema; en **PATCH** solo manda los que cambien.
 
 ### Objeto de respuesta (`TicketResponse`)
 
-Incluye **`id`** (record `rec…`), **`numero_ticket`** (valor del campo numérico `id` en Teable) y el resto de campos anteriores según lo almacenado.
+Incluye **`id`** (record `rec…`), **`numero_ticket`** (valor del campo numérico `id` en Teable), **`proyecto`** como objeto `{ id, title }` si hay enlace, **`adjunto`** tal como devuelve Teable, y el resto de campos según lo almacenado.
 
 ---
 

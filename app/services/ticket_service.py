@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from app.clients.teable import TeableClient
 from app.config import settings
 from app.schemas.tickets import TicketCreate, TicketUpdate
+from app.services.project_service import ProjectService
 from app.utils.mapping import map_ticket_record
 
 
@@ -11,6 +12,11 @@ class TicketService:
     def __init__(self) -> None:
         self.client = TeableClient()
         self.table_id = settings.teable_table_tickets
+        self.project_service = ProjectService()
+
+    @staticmethod
+    def _build_link_field(record: dict) -> dict[str, str]:
+        return {"id": record["id"]}
 
     @staticmethod
     def _build_teable_error_detail(exc: httpx.HTTPStatusError, default_message: str) -> str:
@@ -39,9 +45,30 @@ class TicketService:
                 out["id"] = v
             elif k == "estado":
                 out["Estado"] = v
+            elif k == "titulo":
+                out["Titulo"] = v
+            elif k == "descripcion":
+                out["Descripcion "] = v
+            elif k == "fecha_propuesta":
+                out["Fecha_propuesta"] = v
+            elif k == "proyecto":
+                out["proyecto"] = v
+            elif k == "adjunto":
+                out["adjunto"] = v
             else:
                 out[k] = v
         return out
+
+    async def _resolve_proyecto_in_fields(self, fields: dict) -> None:
+        if "proyecto" not in fields:
+            return
+        raw = fields.pop("proyecto")
+        if raw is None:
+            return
+        project = await self.project_service.get_project_by_id_or_name(str(raw))
+        if not project:
+            raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+        fields["proyecto"] = self._build_link_field(project)
 
     async def list_tickets(
         self,
@@ -72,6 +99,7 @@ class TicketService:
         fields = payload.model_dump(exclude_unset=True)
         if "estado" not in fields:
             fields["estado"] = "Nuevo"
+        await self._resolve_proyecto_in_fields(fields)
         teable_fields = self._payload_to_teable_fields(fields)
         try:
             response = await self.client.create_record(self.table_id, teable_fields)
@@ -82,6 +110,12 @@ class TicketService:
 
     async def update_ticket(self, record_id: str, payload: TicketUpdate):
         fields = payload.model_dump(exclude_unset=True)
+        if not fields:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se enviaron campos para actualizar",
+            )
+        await self._resolve_proyecto_in_fields(fields)
         if not fields:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

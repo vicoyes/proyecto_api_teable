@@ -1,6 +1,8 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.tasks import LinkedRecordRef
 
 
 TicketEstado = Literal[
@@ -18,6 +20,11 @@ class TicketResponse(BaseModel):
     # Campo Teable "id" (número primario en la tabla)
     numero_ticket: float | int | None = None
     estado: TicketEstado | None = None
+    titulo: str | None = None
+    descripcion: str | None = None
+    fecha_propuesta: str | None = None
+    proyecto: LinkedRecordRef | None = None
+    adjunto: Any | None = None
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
@@ -42,6 +49,17 @@ class TicketCreate(BaseModel):
         default="Nuevo",
         description="Por defecto Nuevo. Debe coincidir con el single select en Teable (campo Estado).",
     )
+    titulo: str | None = None
+    descripcion: str | None = None
+    fecha_propuesta: str | None = None
+    proyecto: str | None = Field(
+        None,
+        description="ID de registro Teable (rec…) o nombre exacto del proyecto (nombre_proyecto).",
+    )
+    adjunto: Any | None = Field(
+        None,
+        description="Adjuntos: estructura que acepte la API de Teable para el campo adjunto.",
+    )
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
@@ -61,6 +79,14 @@ class TicketCreate(BaseModel):
 class TicketUpdate(BaseModel):
     numero_ticket: float | int | None = None
     estado: TicketEstado | None = None
+    titulo: str | None = None
+    descripcion: str | None = None
+    fecha_propuesta: str | None = None
+    proyecto: str | None = Field(
+        None,
+        description="ID de registro Teable (rec…) o nombre exacto del proyecto (nombre_proyecto).",
+    )
+    adjunto: Any | None = None
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
