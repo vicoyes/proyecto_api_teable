@@ -77,7 +77,7 @@ class TaskService:
             fields["responsable"] = self._build_link_field(member)
 
         if payload.proyecto:
-            project = await self.project_service.get_project_by_name(payload.proyecto)
+            project = await self.project_service.get_project_by_id_or_name(payload.proyecto)
             if not project:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
             # Campo relacional en Teable se llama "Proyecto"
@@ -109,7 +109,7 @@ class TaskService:
             fields["responsable"] = self._build_link_field(member)
 
         if payload.proyecto:
-            project = await self.project_service.get_project_by_name(payload.proyecto)
+            project = await self.project_service.get_project_by_id_or_name(payload.proyecto)
             if not project:
                 raise HTTPException(status_code=404, detail="Proyecto no encontrado")
             # Campo relacional en Teable se llama "Proyecto"

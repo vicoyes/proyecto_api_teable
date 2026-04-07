@@ -38,7 +38,10 @@ class TaskCreate(BaseModel):
     resultado: str | None = None
     evidencias: str | None = None
     responsable: str | None = None
-    proyecto: str | None = None
+    proyecto: str | None = Field(
+        None,
+        description="ID de registro en Teable (rec…) o nombre exacto (campo nombre_proyecto).",
+    )
 
 
 class TaskUpdate(BaseModel):
@@ -56,7 +59,10 @@ class TaskUpdate(BaseModel):
     resultado: str | None = None
     evidencias: str | None = None
     responsable: str | None = None
-    proyecto: str | None = None
+    proyecto: str | None = Field(
+        None,
+        description="ID de registro en Teable (rec…) o nombre exacto (campo nombre_proyecto).",
+    )
 
 
 class LinkedRecordRef(BaseModel):

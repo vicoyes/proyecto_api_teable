@@ -1,3 +1,5 @@
+import re
+
 import httpx
 from fastapi import HTTPException, status
 from app.clients.teable import TeableClient
@@ -110,6 +112,24 @@ class ProjectService:
                 return record
         
         return None
+
+    _TEABLE_RECORD_ID = re.compile(r"^rec[A-Za-z0-9]+$")
+
+    async def get_project_by_id_or_name(self, value: str) -> dict | None:
+        """Resuelve un proyecto por ID de registro Teable (`rec…`) o por `nombre_proyecto` exacto."""
+        raw = value.strip()
+        if not raw:
+            return None
+
+        if self._TEABLE_RECORD_ID.match(raw):
+            try:
+                return await self.client.get_record(self.table_id, raw)
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == status.HTTP_404_NOT_FOUND:
+                    return await self.get_project_by_name(raw)
+                raise
+
+        return await self.get_project_by_name(raw)
 
     async def update_project(self, project_id: str, project_data: ProjectUpdate):
         fields = project_data.model_dump(exclude_unset=True)
