@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 TicketEstado = Literal[
+    "Nuevo",
     "Planificado",
     "En ejecucion",
     "Completado",
@@ -37,7 +38,10 @@ class TicketResponse(BaseModel):
 
 class TicketCreate(BaseModel):
     numero_ticket: float | int | None = Field(None, description='Valor del campo Teable "id" (número) si lo editas manualmente')
-    estado: TicketEstado | None = None
+    estado: TicketEstado = Field(
+        default="Nuevo",
+        description="Por defecto Nuevo. Debe coincidir con el single select en Teable (campo Estado).",
+    )
     resumen_ejecutivo: str | None = None
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None

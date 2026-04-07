@@ -70,6 +70,8 @@ class TicketService:
 
     async def create_ticket(self, payload: TicketCreate):
         fields = payload.model_dump(exclude_unset=True)
+        if "estado" not in fields:
+            fields["estado"] = "Nuevo"
         teable_fields = self._payload_to_teable_fields(fields)
         try:
             response = await self.client.create_record(self.table_id, teable_fields)
