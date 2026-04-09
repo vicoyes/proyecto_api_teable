@@ -66,7 +66,7 @@ class TicketResponse(BaseModel):
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
     perfiles_requeridos: str | None = None
-    tiempo_estimado_horas: str | None = None
+    tiempo_estimado_horas: TeableTextOptional = None
     tiempo_estimado_horas_min: float | int | None = None
     tiempo_estimado_horas_max: float | int | None = None
     wbs_paso_1: str | None = None
