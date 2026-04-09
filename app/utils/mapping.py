@@ -6,6 +6,39 @@ from app.schemas.correos import CorreoResponse
 from app.schemas.tickets import TicketResponse
 
 
+def _ticket_tiempo_horas_texto(value) -> str | None:
+    """Teable: `tiempo_estimado_horas` (single line text)."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return str(value)
+    return str(value)
+
+
+def _ticket_teable_numero(value) -> float | int | None:
+    """Teable: `tiempo_estimado_horas_min` / `tiempo_estimado_horas_max` (number)."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return value
+    if isinstance(value, str):
+        s = value.strip()
+        if not s:
+            return None
+        try:
+            f = float(s)
+            return int(f) if f.is_integer() else f
+        except ValueError:
+            return None
+    return None
+
+
 def map_linked_record(value):
     if isinstance(value, dict) and value.get("id"):
         return LinkedRecordRef(
@@ -99,9 +132,9 @@ def map_ticket_record(record: dict) -> TicketResponse:
         nivel_urgencia=fields.get("nivel_urgencia"),
         departamento_principal=fields.get("departamento_principal"),
         perfiles_requeridos=fields.get("perfiles_requeridos"),
-        tiempo_estimado_horas=fields.get("tiempo_estimado_horas"),
-        tiempo_estimado_horas_min=fields.get("tiempo_estimado_horas_min"),
-        tiempo_estimado_horas_max=fields.get("tiempo_estimado_horas_max"),
+        tiempo_estimado_horas=_ticket_tiempo_horas_texto(fields.get("tiempo_estimado_horas")),
+        tiempo_estimado_horas_min=_ticket_teable_numero(fields.get("tiempo_estimado_horas_min")),
+        tiempo_estimado_horas_max=_ticket_teable_numero(fields.get("tiempo_estimado_horas_max")),
         wbs_paso_1=fields.get("wbs_paso_1"),
         wbs_paso_2=fields.get("wbs_paso_2"),
         wbs_paso_3=fields.get("wbs_paso_3"),

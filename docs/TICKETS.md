@@ -114,9 +114,9 @@ Todos son opcionales en el schema; en **PATCH** solo manda los que cambien.
 | `nivel_urgencia` | string | |
 | `departamento_principal` | string | |
 | `perfiles_requeridos` | string | |
-| `tiempo_estimado_horas` | number | |
-| `tiempo_estimado_horas_min` | number | |
-| `tiempo_estimado_horas_max` | number | |
+| `tiempo_estimado_horas` | string | En Teable: **single line text** (`fldzLiHmauMIR7JTKtW`). Ej. `"4-6"`. Si en JSON mandas número, se convierte a string. |
+| `tiempo_estimado_horas_min` | number | En Teable: **number** (`fldtdp4atP4R36hx0iB`). |
+| `tiempo_estimado_horas_max` | number | En Teable: **number** (`fld3WvQPyDMuRNh8t5a`). |
 | `wbs_paso_1` … `wbs_paso_4` | string | |
 | `wbs_tareas_consolidado` | string | |
 | `borrador_respuesta_cliente` | string | Texto largo en Teable. |

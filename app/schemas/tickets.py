@@ -1,6 +1,6 @@
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from app.schemas.tasks import LinkedRecordRef
 
@@ -13,6 +13,43 @@ TicketEstado = Literal[
     "Bloqueado",
     "Cancelado",
 ]
+
+
+def _optional_teable_text(v: Any) -> str | None:
+    """Campo Teable single line text (`tiempo_estimado_horas`)."""
+    if v is None:
+        return None
+    if isinstance(v, str):
+        return v
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        return str(v)
+    return str(v)
+
+
+def _optional_teable_number(v: Any) -> float | int | None:
+    """Campos Teable number (`tiempo_estimado_horas_min` / `_max`)."""
+    if v is None:
+        return None
+    if isinstance(v, bool):
+        raise ValueError("no se acepta booleano en campos numéricos")
+    if isinstance(v, int):
+        return v
+    if isinstance(v, float):
+        return v
+    if isinstance(v, str):
+        s = v.strip()
+        if not s:
+            return None
+        try:
+            f = float(s)
+            return int(f) if f.is_integer() else f
+        except ValueError as exc:
+            raise ValueError("número inválido") from exc
+    raise TypeError("se esperaba número o texto numérico")
+
+
+TeableTextOptional = Annotated[str | None, BeforeValidator(_optional_teable_text)]
+TeableNumberOptional = Annotated[float | int | None, BeforeValidator(_optional_teable_number)]
 
 
 class TicketResponse(BaseModel):
@@ -29,9 +66,9 @@ class TicketResponse(BaseModel):
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
     perfiles_requeridos: str | None = None
-    tiempo_estimado_horas: float | None = None
-    tiempo_estimado_horas_min: float | None = None
-    tiempo_estimado_horas_max: float | None = None
+    tiempo_estimado_horas: str | None = None
+    tiempo_estimado_horas_min: float | int | None = None
+    tiempo_estimado_horas_max: float | int | None = None
     wbs_paso_1: str | None = None
     wbs_paso_2: str | None = None
     wbs_paso_3: str | None = None
@@ -64,9 +101,9 @@ class TicketCreate(BaseModel):
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
     perfiles_requeridos: str | None = None
-    tiempo_estimado_horas: float | None = None
-    tiempo_estimado_horas_min: float | None = None
-    tiempo_estimado_horas_max: float | None = None
+    tiempo_estimado_horas: TeableTextOptional = None
+    tiempo_estimado_horas_min: TeableNumberOptional = None
+    tiempo_estimado_horas_max: TeableNumberOptional = None
     wbs_paso_1: str | None = None
     wbs_paso_2: str | None = None
     wbs_paso_3: str | None = None
@@ -91,9 +128,9 @@ class TicketUpdate(BaseModel):
     nivel_urgencia: str | None = None
     departamento_principal: str | None = None
     perfiles_requeridos: str | None = None
-    tiempo_estimado_horas: float | None = None
-    tiempo_estimado_horas_min: float | None = None
-    tiempo_estimado_horas_max: float | None = None
+    tiempo_estimado_horas: TeableTextOptional = None
+    tiempo_estimado_horas_min: TeableNumberOptional = None
+    tiempo_estimado_horas_max: TeableNumberOptional = None
     wbs_paso_1: str | None = None
     wbs_paso_2: str | None = None
     wbs_paso_3: str | None = None
