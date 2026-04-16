@@ -12,6 +12,7 @@ TicketEstado = Literal[
     "Completado",
     "Bloqueado",
     "Cancelado",
+    "Aprobado",
 ]
 
 
@@ -56,7 +57,8 @@ class TicketResponse(BaseModel):
     id: str
     # Campo Teable "id" (número primario en la tabla)
     numero_ticket: float | int | None = None
-    estado: TicketEstado | None = None
+    # Texto del single select en Teable; puede haber opciones no listadas en TicketEstado.
+    estado: str | None = None
     titulo: str | None = None
     descripcion: str | None = None
     fecha_propuesta: str | None = None

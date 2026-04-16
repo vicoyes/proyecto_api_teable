@@ -34,7 +34,7 @@ La API escribe en Teable con **`fieldKeyType=name`**: los nombres de campo en el
 
 En Teable el campo se llama **`Estado`**. En la API usas la clave **`estado`** (minúsculas).
 
-**Valores permitidos** (deben existir igual en Teable):
+**Valores habituales** en la API (deben existir igual como opciones del single select en Teable):
 
 | Valor API |
 |-----------|
@@ -44,6 +44,9 @@ En Teable el campo se llama **`Estado`**. En la API usas la clave **`estado`** (
 | `Completado` |
 | `Bloqueado` |
 | `Cancelado` |
+| `Aprobado` |
+
+En **respuestas** (`GET`…), `estado` es siempre el texto que devuelve Teable: si añades opciones nuevas al select, la lista seguirá funcionando sin cambiar código.
 
 - **Crear (`POST`):** si no envías `estado`, la API aplica por defecto **`Nuevo`** y lo persiste en Teable.
 - **Actualizar (`PATCH`):** solo cambia `estado` si lo incluyes en el cuerpo.
@@ -124,7 +127,7 @@ Todos son opcionales en el schema; en **PATCH** solo manda los que cambien.
 
 ### Objeto de respuesta (`TicketResponse`)
 
-Incluye **`id`** (record `rec…`), **`numero_ticket`** (valor del campo numérico `id` en Teable), **`proyecto`** como objeto `{ id, title }` si hay enlace, **`adjunto`** tal como devuelve Teable, y el resto de campos según lo almacenado.
+Incluye **`id`** (record `rec…`), **`numero_ticket`** (valor del campo numérico `id` en Teable), **`proyecto`** como objeto `{ id, title }` si hay enlace, **`adjunto`** tal como devuelve Teable, y el resto de campos según lo almacenado. El campo **`estado`** se devuelve como **string** con el valor exacto del single select en Teable (no se limita al enum de **POST/PATCH**).
 
 ---
 
